@@ -1,65 +1,76 @@
-import streamlit as st
+from flask import Flask, render_template, request, jsonify, send_file
+import tempfile, os, io, uuid, shutil
+import xml.etree.ElementTree as ET
 from supabase import create_client, Client
 
-# Configurações do Supabase
+# Importa a lógica do seu arquivo validador_fiscal.py
+try:
+    from validador_fiscal import ValidadorFiscal
+except ImportError:
+    class ValidadorFiscal:
+        def build_events_index(self, p): return {}
+        def extrair_dados_xml(self, p, t, events_index=None): return {}
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+
+STORE = {}
+
+# Credenciais do Supabase
 SUPABASE_URL = "https://gpvndtxkdxtezxblpebs.supabase.co"
 SUPABASE_KEY = "sb_publishable_m8K253TeQ5lFn1c-DwAf3g_C8ebMcTe"
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@st.cache_resource
-def init_connection():
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-supabase = init_connection()
-
-# Estilização idêntica ao App de Suporte
-st.markdown("""
-    <style>
-    .stApp { background-color: #0f1116; color: white; }
-    .stButton>button { background-color: #007bff; color: white; width: 100%; border: none; height: 45px; }
-    .critica-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #007bff;
-        color: #333;
-        margin-top: 20px;
-    }
-    .titulo-erro { color: #d9534f; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
-    </style>
-""", unsafe_allow_html=True)
-
-st.title("🔍 Consultar Críticas de Suporte")
-
-# Interface de busca
-with st.container():
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        busca = st.text_input("", placeholder="Digite a crítica ou erro...", label_visibility="collapsed")
-    with col2:
-        botao = st.button("BUSCAR")
-
-if (botao or busca) and busca:
+@app.route('/criticas')
+def listar_criticas():
+    termo = request.args.get('busca', '')
     try:
-        # BUSCA CORRIGIDA: Agora busca na coluna 'critica' que existe no seu banco
-        # O .ilike permite busca parcial (ex: digitar apenas 'desconto')
-        query = supabase.table("criticas").select("*").ilike("critica", f"%{busca}%").execute()
-        
-        if query.data:
-            for item in query.data:
-                # Mapeamento exato das colunas da sua imagem
-                st.markdown(f"""
-                    <div class="critica-card">
-                        <div class="titulo-erro">🚩 {item.get('critica', 'Erro')}</div>
-                        <p>💡 <b>Motivo:</b> {item.get('motivo', 'Não informado')}</p>
-                        <p>🛠️ <b>Como Resolver:</b> {item.get('como_resolver', 'Consulte o N2')}</p>
-                        <p>⏩ <b>Encaminhar para:</b> Suporte N1</p>
-                        <small>🔥 Utilizado recentemente pela equipe</small>
-                    </div>
-                """, unsafe_allow_html=True)
+        # Busca na coluna 'critica' do seu banco de dados
+        if termo:
+            query = supabase.table("criticas").select("*").ilike("critica", f"%{termo}%").execute()
         else:
-            st.warning(f"Nenhuma crítica encontrada para: {busca}")
+            query = supabase.table("criticas").select("*").execute()
+        return render_template('criticas.html', dados=query.data if query.data else [], busca=termo)
     except Exception as e:
-        st.error(f"Erro na consulta: {e}")
+        return f"Erro de conexão: {e}"
 
-st.markdown("---")
-st.caption("Validador")
+@app.route('/validate', methods=['POST'])
+def validate():
+    try:
+        tipo = request.form.get('tipo', 'NF-e')
+        files = request.files.getlist('files')
+        if not files:
+            return jsonify({'error':'Nenhum arquivo enviado'}), 400
+
+        tmpdir = tempfile.mkdtemp(prefix='val_')
+        paths = []
+        for f in files:
+            filename = os.path.basename(f.filename) or str(uuid.uuid4()) + '.xml'
+            dest = os.path.join(tmpdir, filename)
+            f.save(dest)
+            paths.append(dest)
+
+        validator = ValidadorFiscal()
+        events_index = validator.build_events_index(paths)
+        
+        notas = []
+        for p in paths:
+            try:
+                dados = validator.extrair_dados_xml(p, tipo, events_index=events_index)
+                if dados.get('Número'):
+                    notas.append(dados)
+            except:
+                continue
+
+        key = str(uuid.uuid4())
+        STORE[key] = notas
+        shutil.rmtree(tmpdir)
+        return jsonify({'id': key, 'count': len(notas), 'notas': notas})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
