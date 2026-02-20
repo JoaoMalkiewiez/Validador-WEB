@@ -62,4 +62,4 @@ if (botao or busca) and busca:
         st.error(f"Erro na consulta: {e}")
 
 st.markdown("---")
-st.caption("Fluxo Milionário - Versão 2.1")
+st.caption("Validador")
