@@ -11,55 +11,55 @@ def init_connection():
 
 supabase = init_connection()
 
-# Estilização para ficar igual ao App
+# Estilização idêntica ao App de Suporte
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; }
-    .stButton>button { background-color: #007bff; color: white; width: 100%; border-radius: 5px; }
+    .stApp { background-color: #0f1116; color: white; }
+    .stButton>button { background-color: #007bff; color: white; width: 100%; border: none; height: 45px; }
     .critica-card {
         background-color: white;
         padding: 20px;
         border-radius: 10px;
         border-left: 5px solid #007bff;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        color: #333;
         margin-top: 20px;
     }
-    .titulo-erro { color: #d9534f; font-weight: bold; font-size: 20px; }
+    .titulo-erro { color: #d9534f; font-weight: bold; font-size: 18px; margin-bottom: 10px; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔎 Consultar Críticas de Suporte")
+st.title("🔍 Consultar Críticas de Suporte")
 
-# Campo de busca idêntico ao App
+# Interface de busca
 with st.container():
     col1, col2 = st.columns([4, 1])
     with col1:
-        busca = st.text_input("", placeholder="Digite o erro (ex: consumo)", label_visibility="collapsed")
+        busca = st.text_input("", placeholder="Digite a crítica ou erro...", label_visibility="collapsed")
     with col2:
         botao = st.button("BUSCAR")
 
-if botao and busca:
+if (botao or busca) and busca:
     try:
-        # BUSCA: Ajustei para procurar na coluna 'motivo' conforme sugerido pelo erro
-        # Se sua coluna de busca for 'critica', mude .eq("motivo", busca) para .eq("critica", busca)
-        query = supabase.table("criticas").select("*").ilike("motivo", f"%{busca}%").execute()
+        # BUSCA CORRIGIDA: Agora busca na coluna 'critica' que existe no seu banco
+        # O .ilike permite busca parcial (ex: digitar apenas 'desconto')
+        query = supabase.table("criticas").select("*").ilike("critica", f"%{busca}%").execute()
         
         if query.data:
-            item = query.data[0]
-            # Layout de retorno igual ao App
-            st.markdown(f"""
-                <div class="critica-card">
-                    <div class="titulo-erro">🚩 {item.get('motivo', 'Erro')}</div>
-                    <p>💡 <b>Motivo:</b> {item.get('causa', 'Não informado')}</p>
-                    <p>🛠️ <b>Como Resolver:</b> {item.get('resolucao', 'Não informado')}</p>
-                    <p>⏩ <b>Encaminhar para:</b> {item.get('setor', 'Suporte N1')}</p>
-                    <small>🔥 Utilizado recentemente pela equipe</small>
-                </div>
-            """, unsafe_allow_html=True)
+            for item in query.data:
+                # Mapeamento exato das colunas da sua imagem
+                st.markdown(f"""
+                    <div class="critica-card">
+                        <div class="titulo-erro">🚩 {item.get('critica', 'Erro')}</div>
+                        <p>💡 <b>Motivo:</b> {item.get('motivo', 'Não informado')}</p>
+                        <p>🛠️ <b>Como Resolver:</b> {item.get('como_resolver', 'Consulte o N2')}</p>
+                        <p>⏩ <b>Encaminhar para:</b> Suporte N1</p>
+                        <small>🔥 Utilizado recentemente pela equipe</small>
+                    </div>
+                """, unsafe_allow_html=True)
         else:
-            st.error("Nenhuma crítica encontrada para este termo.")
+            st.warning(f"Nenhuma crítica encontrada para: {busca}")
     except Exception as e:
-        st.error(f"Erro ao consultar banco: {e}")
+        st.error(f"Erro na consulta: {e}")
 
 st.markdown("---")
-st.caption("Versão 2.1 - Sincronizado com Banco de Dados")
+st.caption("Fluxo Milionário - Versão 2.1")
