@@ -14,21 +14,20 @@ def init_connection():
 supabase = init_connection()
 
 # 2. Configuração da Interface
-st.set_page_config(page_title="Validador Pro", page_icon="✅")
+st.set_page_config(page_title="Validador De Críticas", page_icon="✅")
 
-st.title("🛡️ Validador Pro")
-st.write("Conectado ao Render.com & Supabase")
+st.title(" Validador")
 
 # 3. Lógica de Validação
 with st.form("form_validador"):
     dado_input = st.text_input("Digite o código para validar:", placeholder="Ex: 12345")
-    botao_validar = st.form_submit_button("Verificar no Banco de Dados")
+    botao_validar = st.form_submit_button("Consultar")
 
 if botao_validar:
     if dado_input:
         try:
             # Busca na sua tabela (ajuste o nome da tabela 'validacoes' se for outro)
-            query = supabase.table("validacoes").select("*").eq("codigo", dado_input).execute()
+            query = supabase.table("criticas").select("*").eq("codigo", dado_input).execute()
             
             if len(query.data) > 0:
                 st.success(f"✅ Sucesso! Código '{dado_input}' encontrado.")
