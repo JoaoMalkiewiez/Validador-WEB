@@ -1,3 +1,5 @@
 streamlit
-supabase==2.3.7
-gotrue==2.4.2
+supabase==2.11.0
+realtime==2.0.0
+postgrest==0.16.2
+gotrue==2.9.0
