@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validador de Suporte</title>
+    <title>Validador de Suporte - Fluxo Milionário</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -12,16 +12,23 @@
         .input-group .form-control { height: 60px; border-radius: 10px 0 0 10px; border: 2px solid #e0e0e0; font-size: 1.1rem; }
         .btn-buscar { background-color: #007bff; color: white; font-weight: bold; width: 150px; border-radius: 0 10px 10px 0; border: none; }
         .btn-buscar:hover { background-color: #0056b3; }
+        .footer-link { margin-top: 25px; display: block; text-decoration: none; color: #6c757d; font-size: 0.9rem; }
+        .footer-link:hover { color: #1a73e8; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="search-wrapper text-center">
             <h2 class="header-title justify-content-center">🔎 Consultar Críticas de Suporte</h2>
-            <form action="/criticas" method="GET" class="input-group">
+            
+            <form action="https://validador-web-kp8n.onrender.com/criticas" method="GET" class="input-group">
                 <input type="text" name="busca" class="form-control" placeholder="Digite o erro ou palavra-chave..." required>
                 <button type="submit" class="btn btn-buscar">BUSCAR</button>
             </form>
+
+            <a href="https://validador-web-kp8n.onrender.com/" target="_blank" class="footer-link">
+                Acessar Validador de XML Principal (Upload)
+            </a>
         </div>
     </div>
 </body>

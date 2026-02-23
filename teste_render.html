@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Conexão Render</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #eef2f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .search-wrapper { max-width: 900px; margin: 80px auto; padding: 40px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .header-title { color: #1a73e8; font-weight: 700; margin-bottom: 35px; }
+        .input-group .form-control { height: 60px; border-radius: 10px 0 0 10px; border: 2px solid #1a73e8; }
+        .btn-buscar { background-color: #1a73e8; color: white; font-weight: bold; width: 150px; border-radius: 0 10px 10px 0; border: none; }
+        .status-badge { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; background: #d4edda; color: #155724; margin-bottom: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="search-wrapper text-center">
+            <span class="status-badge">● Conectado ao Render Online</span>
+            <h2 class="header-title">🔎 Consultar Críticas (Teste)</h2>
+            
+            <form action="https://validador-web-kp8n.onrender.com/criticas" method="GET" class="input-group">
+                <input type="text" name="busca" class="form-control" placeholder="Digite o erro para buscar no Render..." required>
+                <button type="submit" class="btn btn-buscar">TESTAR</button>
+            </form>
+            
+            <p class="mt-4 text-muted small">Este arquivo não altera seu index.html original.</p>
+        </div>
+    </div>
+</body>
+</html>
