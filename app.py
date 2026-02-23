@@ -2,7 +2,6 @@ from flask import Flask, render_template, request
 import os
 from supabase import create_client
 
-# Configuração para encontrar a pasta templates
 app = Flask(__name__, template_folder='templates')
 
 # Credenciais do Supabase
@@ -19,12 +18,15 @@ def listar_criticas():
     termo = request.args.get('busca', '')
     try:
         if termo:
-            query = supabase.table("criticas").select("*").ilike("critica", f"%{termo}%").execute()
+            # Busca ampliada para todas as colunas conforme imagem
+            filtro = f"critica.ilike.%{termo}%,motivo.ilike.%{termo}%,como_resolver.ilike.%{termo}%,encaminhar_para.ilike.%{termo}%"
+            query = supabase.table("criticas").select("*").or_(filtro).execute()
         else:
             query = supabase.table("criticas").select("*").execute()
+            
         return render_template('criticas.html', dados=query.data, busca=termo)
     except Exception as e:
-        return f"Erro na conexão com o banco de dados: {e}"
+        return f"Erro na consulta ao banco: {e}"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
