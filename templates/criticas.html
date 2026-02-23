@@ -2,75 +2,94 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Resultados de Suporte</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados - Fluxo Milionário</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
-        .result-card { 
-            background: white; border-radius: 12px; border-left: 6px solid #007bff; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px;
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .container { max-width: 1000px; margin-top: 50px; }
+        .search-header { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        
+        /* Estilo dos Cards igual à imagem */
+        .critica-card { 
+            background: white; 
+            border-radius: 12px; 
+            border-left: 5px solid #007bff; 
+            padding: 25px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             position: relative;
         }
-        .critica-titulo { color: #d93025; font-weight: bold; font-size: 1.4rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .info-row { margin-bottom: 12px; font-size: 1.05rem; display: flex; align-items: flex-start; }
-        .icon-label { font-weight: bold; color: #3c4043; min-width: 160px; display: inline-block; }
-        .btn-copy { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 500; position: absolute; top: 25px; right: 25px; transition: 0.3s; }
-        .status-badge { font-size: 0.85rem; color: #70757a; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .critica-title { color: #d9534f; font-weight: 700; font-size: 1.2rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .info-item { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; color: #444; }
+        .info-label { font-weight: 700; color: #333; min-width: 130px; }
+        
+        .btn-copiar { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            padding: 5px 15px; 
+            border-radius: 6px; 
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .btn-copiar:hover { background-color: #218838; }
+        .badge-utilizado { font-size: 0.75rem; color: #888; font-style: italic; margin-top: 10px; display: block; }
     </style>
 </head>
-<body class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <h3 class="text-dark fw-bold">Resultados para: <span class="text-primary">{{ busca }}</span></h3>
-        <a href="/" class="btn btn-outline-secondary">Nova Consulta</a>
-    </div>
+<body>
+    <div class="container">
+        <div class="search-header text-center">
+            <h2 style="color: #1a73e8; font-weight: 700; margin-bottom: 25px;">🔎 Consultar Críticas de Suporte</h2>
+            <form action="/criticas" method="GET" class="input-group">
+                <input type="text" name="busca" class="form-control" value="{{ busca }}" placeholder="Digite o erro...">
+                <button type="submit" class="btn btn-primary px-5">BUSCAR</button>
+            </form>
+        </div>
 
-    {% for item in dados %}
-    <div class="result-card" id="card-{{ loop.index }}">
-        <button class="btn btn-copy" onclick="copiarSolucao('{{ loop.index }}')">📋 Copiar Solução</button>
+        {% if dados %}
+            {% for item in dados %}
+            <div class="critica-card">
+                <button class="btn-copiar" onclick="copiarTexto('{{ item.solucao | replace('\n', ' ') }}')">📋 Copiar Solução</button>
+                
+                <div class="critica-title">
+                    🚩 {{ item.critica }}
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">💡 Motivo:</span> 
+                    <span>{{ item.motivo }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">🛠️ Como Resolver:</span> 
+                    <span>{{ item.solucao }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">⏩ Encaminhar para:</span> 
+                    <span class="text-primary fw-bold">{{ item.setor }}</span>
+                </div>
+
+                <span class="badge-utilizado">🔥 Utilizado {{ item.cliques or 0 }} vezes pela equipe</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-warning text-center">Nenhuma crítica encontrada para "{{ busca }}".</div>
+        {% endif %}
         
-        <div class="critica-titulo">🚩 {{ item.critica }}</div>
-        
-        <div class="info-row">
-            <span class="icon-label">💡 Motivo:</span> 
-            <span class="text-muted">{{ item.motivo }}</span>
+        <div class="text-center mb-5">
+            <a href="/" class="text-decoration-none">← Voltar para a busca inicial</a>
         </div>
-        
-        <div class="info-row">
-            <span class="icon-label">🛠️ Como Resolver:</span> 
-            <span id="texto-solucao-{{ loop.index }}" class="text-muted">{{ item.como_resolver }}</span>
-        </div>
-        
-        <div class="info-row">
-            <span class="icon-label">⏩ Encaminhar para:</span> 
-            <span class="badge bg-primary">Suporte N1</span>
-        </div>
-        
-        <div class="status-badge">🔥 Utilizado recentemente pela equipe</div>
     </div>
-    {% else %}
-    <div class="alert alert-warning shadow-sm">Nenhuma crítica encontrada para sua busca.</div>
-    {% endfor %}
 
     <script>
-        function copiarSolucao(id) {
-            // Pega o texto do elemento específico
-            const textoParaCopiar = document.getElementById('texto-solucao-' + id).innerText;
-            
-            // Usa a API do navegador para copiar
-            navigator.clipboard.writeText(textoParaCopiar).then(() => {
-                const botao = document.querySelector(`#card-${id} .btn-copy`);
-                const textoOriginal = botao.innerHTML;
-                
-                // Feedback visual de sucesso
-                botao.innerHTML = '✅ Copiado!';
-                botao.style.backgroundColor = '#155724';
-                
-                setTimeout(() => {
-                    botao.innerHTML = textoOriginal;
-                    botao.style.backgroundColor = '#28a745';
-                }, 2000);
-            }).catch(err => {
-                console.error('Erro ao copiar: ', err);
+        function copiarTexto(texto) {
+            navigator.clipboard.writeText(texto).then(() => {
+                alert("Solução copiada para a área de transferência!");
             });
         }
     </script>
