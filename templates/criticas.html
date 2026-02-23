@@ -2,41 +2,77 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Resultados - Validador</title>
+    <title>Resultados de Suporte</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
         .result-card { 
-            background: white; border-radius: 10px; border-left: 5px solid #0d6efd; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 20px;
+            background: white; border-radius: 12px; border-left: 6px solid #007bff; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px;
+            position: relative;
         }
-        .critica-titulo { color: #dc3545; font-weight: bold; font-size: 1.25rem; }
-        .icon-label { font-weight: bold; color: #333; }
-        .btn-copy { background-color: #28a745; color: white; font-size: 0.9rem; border-radius: 5px; }
-        .badge-info { font-size: 0.8rem; color: #666; font-style: italic; }
+        .critica-titulo { color: #d93025; font-weight: bold; font-size: 1.4rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .info-row { margin-bottom: 12px; font-size: 1.05rem; display: flex; align-items: flex-start; }
+        .icon-label { font-weight: bold; color: #3c4043; min-width: 160px; display: inline-block; }
+        .btn-copy { background-color: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 500; position: absolute; top: 25px; right: 25px; transition: 0.3s; }
+        .status-badge { font-size: 0.85rem; color: #70757a; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="text-secondary">Resultados para: "{{ busca }}"</h4>
-        <a href="/" class="btn btn-outline-primary btn-sm">Nova Busca</a>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h3 class="text-dark fw-bold">Resultados para: <span class="text-primary">{{ busca }}</span></h3>
+        <a href="/" class="btn btn-outline-secondary">Nova Consulta</a>
     </div>
 
     {% for item in dados %}
-    <div class="result-card">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div class="critica-titulo">🚩 {{ item.critica }}</div>
-            <button class="btn btn-copy">📄 Copiar Solução</button>
+    <div class="result-card" id="card-{{ loop.index }}">
+        <button class="btn btn-copy" onclick="copiarSolucao('{{ loop.index }}')">📋 Copiar Solução</button>
+        
+        <div class="critica-titulo">🚩 {{ item.critica }}</div>
+        
+        <div class="info-row">
+            <span class="icon-label">💡 Motivo:</span> 
+            <span class="text-muted">{{ item.motivo }}</span>
         </div>
         
-        <p class="mb-2"><span class="icon-label">💡 Motivo:</span> {{ item.motivo }}</p>
-        <p class="mb-2"><span class="icon-label">🛠️ Como Resolver:</span> {{ item.como_resolver }}</p>
-        <p class="mb-3"><span class="icon-label">⏩ Encaminhar para:</span> Suporte N1</p>
+        <div class="info-row">
+            <span class="icon-label">🛠️ Como Resolver:</span> 
+            <span id="texto-solucao-{{ loop.index }}" class="text-muted">{{ item.como_resolver }}</span>
+        </div>
         
-        <div class="badge-info">🔥 Utilizado recentemente pela equipe</div>
+        <div class="info-row">
+            <span class="icon-label">⏩ Encaminhar para:</span> 
+            <span class="badge bg-primary">Suporte N1</span>
+        </div>
+        
+        <div class="status-badge">🔥 Utilizado recentemente pela equipe</div>
     </div>
     {% else %}
-    <div class="alert alert-light text-center shadow-sm">Nenhuma crítica encontrada para "{{ busca }}".</div>
+    <div class="alert alert-warning shadow-sm">Nenhuma crítica encontrada para sua busca.</div>
     {% endfor %}
+
+    <script>
+        function copiarSolucao(id) {
+            // Pega o texto do elemento específico
+            const textoParaCopiar = document.getElementById('texto-solucao-' + id).innerText;
+            
+            // Usa a API do navegador para copiar
+            navigator.clipboard.writeText(textoParaCopiar).then(() => {
+                const botao = document.querySelector(`#card-${id} .btn-copy`);
+                const textoOriginal = botao.innerHTML;
+                
+                // Feedback visual de sucesso
+                botao.innerHTML = '✅ Copiado!';
+                botao.style.backgroundColor = '#155724';
+                
+                setTimeout(() => {
+                    botao.innerHTML = textoOriginal;
+                    botao.style.backgroundColor = '#28a745';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar: ', err);
+            });
+        }
+    </script>
 </body>
 </html>
