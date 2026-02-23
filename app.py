@@ -4,7 +4,7 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# Credenciais do seu Supabase
+# Credenciais do Supabase
 URL = "https://gpvndtxkdxtezxblpebs.supabase.co"
 KEY = "sb_publishable_m8K253TeQ5lFn1c-DwAf3g_C8ebMcTe"
 supabase = create_client(URL, KEY)
@@ -22,9 +22,9 @@ def listar_criticas():
             query = supabase.table("criticas").select("*").ilike("critica", f"%{termo}%").execute()
         else:
             query = supabase.table("criticas").select("*").execute()
-        return render_template('criticas.html', dados=query.data if query.data else [], busca=termo)
+        return render_template('criticas.html', dados=query.data, busca=termo)
     except Exception as e:
-        return f"Erro no banco: {e}"
+        return f"Erro: {e}"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

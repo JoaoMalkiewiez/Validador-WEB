@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="UTF-8"><title>Resultados</title></head>
+<body style="font-family: sans-serif; padding: 20px;">
+    <a href="/">Voltar para a busca</a>
+    <h2>Resultados para: "{{ busca }}"</h2>
+    {% for item in dados %}
+        <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 15px; border-radius: 5px;">
+            <h3 style="color: #d9534f;">{{ item.critica }}</h3>
+            <p><strong>Motivo:</strong> {{ item.motivo }}</p>
+            <p><strong>Como Resolver:</strong> {{ item.como_resolver }}</p>
+        </div>
+    {% else %}
+        <p>Nenhuma crítica encontrada.</p>
+    {% endfor %}
+</body>
+</html>
