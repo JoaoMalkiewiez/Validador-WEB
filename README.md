@@ -49,12 +49,20 @@ Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` as environment variables before start
 
 The [`render.yaml`](render.yaml) file configures a Python web service using Gunicorn to serve the Flask `app` object. A successful deployment also depends on database availability, valid permissions and the expected schema.
 
+## Tests
+
+```bash
+python -m unittest discover -v
+```
+
+The CI workflow also checks Python syntax. A green CI run is required before treating the checks as verified.
+
 ## Security and limitations
 
 - Supabase configuration is read from environment variables. Publishable keys are not service-role secrets, but database access still depends on correctly configured Row Level Security policies.
 - Do not put service-role keys, customer data or confidential operational records in this repository.
 - Review the query filter and authorization policies before exposing the service to untrusted traffic. Unexpected server errors are logged without returning exception details to visitors.
-- This repository does not currently demonstrate an automated test suite.
+- Automated Flask route and error-handling regression tests are included in [`test_app.py`](test_app.py) and run through [GitHub Actions](.github/workflows/python-checks.yml). These tests mock the database and do not verify a live Supabase deployment.
 
 ## Author
 
