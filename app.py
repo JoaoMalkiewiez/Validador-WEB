@@ -6,8 +6,10 @@ from supabase import create_client
 app = Flask(__name__, template_folder='templates')
 
 # Credenciais do Supabase
-URL = "https://gpvndtxkdxtezxblpebs.supabase.co"
-KEY = "sb_publishable_m8K253TeQ5lFn1c-DwAf3g_C8ebMcTe"
+URL = os.environ.get("SUPABASE_URL")
+KEY = os.environ.get("SUPABASE_ANON_KEY")
+if not URL or not KEY:
+    raise RuntimeError("Set SUPABASE_URL and SUPABASE_ANON_KEY in the environment")
 supabase = create_client(URL, KEY)
 
 @app.route('/')
@@ -28,9 +30,10 @@ def listar_criticas():
         # Se chegar aqui, o carregamento funcionou
         return render_template('criticas.html', dados=query.data, busca=termo)
     
-    except Exception as e:
+    except Exception:
         # Se travar, ele mostrará o erro técnico na tela em vez de ficar carregando infinito
-        return f"<h3>Erro de Carregamento</h3><p>Detalhes: {str(e)}</p><a href='/'>Voltar</a>", 500
+        app.logger.exception("Unable to load validation records")
+        return "Unable to load records. Please try again later.", 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
