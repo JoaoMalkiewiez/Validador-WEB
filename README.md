@@ -43,7 +43,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The application uses a Supabase project configured in `app.py`. Replace that configuration with **your own project and authorized data** before reuse. The database must provide a `criticas` table with the columns expected by the application.
+Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` as environment variables before starting the server. See [`.env.example`](.env.example) for placeholders (the app does not automatically load `.env` files). The database must provide a `criticas` table with the columns expected by the application. For Render, configure both variables in the service's environment settings.
 
 ## Deploy
 
@@ -51,9 +51,9 @@ The [`render.yaml`](render.yaml) file configures a Python web service using Guni
 
 ## Security and limitations
 
-- The current source contains a Supabase **publishable** key. Publishable keys are not service-role secrets, but database access still depends on correctly configured Row Level Security policies.
+- Supabase configuration is read from environment variables. Publishable keys are not service-role secrets, but database access still depends on correctly configured Row Level Security policies.
 - Do not put service-role keys, customer data or confidential operational records in this repository.
-- Review the query filter and error handling before exposing the service to untrusted traffic.
+- Review the query filter and authorization policies before exposing the service to untrusted traffic. Unexpected server errors are logged without returning exception details to visitors.
 - This repository does not currently demonstrate an automated test suite.
 
 ## Author
