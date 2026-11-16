@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: validador-python
+    name: fiscal-validator-web
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: streamlit run app.py --server.port $PORT
+    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
